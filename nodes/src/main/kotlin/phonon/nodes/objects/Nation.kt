@@ -1,7 +1,7 @@
 /**
  * Nation
  * -----------------------------
- * 
+ *
  */
 
 package phonon.nodes.objects
@@ -41,6 +41,7 @@ public class Nation(
     // json string and memoization flag
     private var saveState: NationSaveState
     private var _needsUpdate = false
+    private var neutrality = false
 
     init {
         // assign random color
@@ -51,6 +52,14 @@ public class Nation(
         )
 
         this.saveState = NationSaveState(this)
+    }
+
+    public fun toggleNeutrality() {
+        neutrality = !neutrality
+    }
+
+    public fun getNeutrality(): Boolean {
+        return neutrality
     }
 
     override public fun hashCode(): Int {
@@ -65,9 +74,9 @@ public class Nation(
         // - get town names
         // - get total residents count
         var residents = 0
-        val towns = if ( this.towns.size > 0 ) {
+        val towns = if (this.towns.size > 0) {
             val townNames: ArrayList<String> = arrayListOf()
-            for ( t in this.towns ) {
+            for (t in this.towns) {
                 townNames.add(t.name)
                 residents += t.residents.size
             }
@@ -76,14 +85,14 @@ public class Nation(
             "${ChatColor.GRAY}None"
         }
 
-        val allies = if ( this.allies.size > 0 ) {
-            this.allies.map {v -> v.name}.joinToString(", ")
+        val allies = if (this.allies.size > 0) {
+            this.allies.map { v -> v.name }.joinToString(", ")
         } else {
             "${ChatColor.GRAY}None"
         }
 
-        val enemies = if ( this.enemies.size > 0 ) {
-            this.enemies.map {v -> v.name}.joinToString(", ")
+        val enemies = if (this.enemies.size > 0) {
+            this.enemies.map { v -> v.name }.joinToString(", ")
         } else {
             "${ChatColor.GRAY}None"
         }
@@ -95,37 +104,40 @@ public class Nation(
         Message.print(sender, "- Residents${ChatColor.WHITE}: ${residents}")
         Message.print(sender, "- Allies${ChatColor.WHITE}: ${allies}")
         Message.print(sender, "- Enemies${ChatColor.WHITE}: ${enemies}")
+        Message.print(sender, "- Neutral${ChatColor.WHITE}: ${if (this.neutrality) "yes" else "no"}")
     }
 
     /**
      * Immutable save snapshot, must be composed of immutable primitives.
      * Used to generate json string serialization.
      */
-    public class NationSaveState(n: Nation): JsonSaveState {
+    public class NationSaveState(n: Nation) : JsonSaveState {
         public val uuid = n.uuid
         public val capital = n.capital.name
         public val color = n.color
-        public val towns = n.towns.map{ x -> x.name }
-        public val allies = n.allies.map{ x -> x.name }
-        public val enemies = n.enemies.map{ x -> x.name }
+        public val towns = n.towns.map { x -> x.name }
+        public val allies = n.allies.map { x -> x.name }
+        public val enemies = n.enemies.map { x -> x.name }
+        public val neutrality = n.neutrality
 
         override public var jsonString: String? = null
 
         override public fun createJsonString(): String {
             val capitalName = "\"${capital}\""
             val col = this.color
-            val towns = this.towns.asSequence().map{ x -> "\"${x}\""}.joinToString(",", "[", "]")
-            val allies = this.allies.asSequence().map{ x -> "\"${x}\""}.joinToString(",", "[", "]")
-            val enemies = this.enemies.asSequence().map{ x -> "\"${x}\""}.joinToString(",", "[", "]")
+            val towns = this.towns.asSequence().map { x -> "\"${x}\"" }.joinToString(",", "[", "]")
+            val allies = this.allies.asSequence().map { x -> "\"${x}\"" }.joinToString(",", "[", "]")
+            val enemies = this.enemies.asSequence().map { x -> "\"${x}\"" }.joinToString(",", "[", "]")
 
             val jsonString = ("{"
-            + "\"uuid\":\"${this.uuid.toString()}\","
-            + "\"capital\":${capitalName},"
-            + "\"color\":[${this.color.r},${this.color.g},${this.color.b}],"
-            + "\"towns\":${towns},"
-            + "\"allies\":${allies},"
-            + "\"enemies\":${enemies}"
-            + "}")
+                    + "\"uuid\":\"${this.uuid.toString()}\","
+                    + "\"capital\":${capitalName},"
+                    + "\"color\":[${this.color.r},${this.color.g},${this.color.b}],"
+                    + "\"towns\":${towns},"
+                    + "\"allies\":${allies},"
+                    + "\"enemies\":${enemies}"
+                    + "\"neutrality\":${this.neutrality}"
+                    + "}")
 
             return jsonString
         }
@@ -140,7 +152,7 @@ public class Nation(
     // - returns memoized copy if needsUpdate false
     // - otherwise, parses self
     public fun getSaveState(): NationSaveState {
-        if ( this._needsUpdate ) {
+        if (this._needsUpdate) {
             this.saveState = NationSaveState(this)
             this._needsUpdate = false
         }

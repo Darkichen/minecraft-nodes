@@ -106,11 +106,16 @@ public class WarCommand : CommandExecutor, TabCompleter {
             }
 
             enemyNation = enemyTown.nation
-            if ( enemyNation !== null ) {
-                declareWar(player, town, enemyNation.capital, townNation, enemyNation)
-            }
-            else {
-                declareWar(player, town, enemyTown, townNation, enemyNation)
+            if (townNation?.getNeutrality() == false && enemyNation?.getNeutrality() == false) {
+                if (enemyNation !== null) {
+                    declareWar(player, town, enemyNation.capital, townNation, enemyNation)
+                } else {
+                    declareWar(player, town, enemyTown, townNation, enemyNation)
+                }
+            } else {
+                if (townNation != null) {
+                    Message.print(player, "You can't declare a war, since" + if (townNation.getNeutrality()) " your " else " the enemy " + "nation is neutral")
+                }
             }
             return
         }
