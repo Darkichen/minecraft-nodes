@@ -91,6 +91,7 @@ public class NodesPlugin : JavaPlugin() {
         this.getCommand("allychat")?.setExecutor(AllyChatCommand())
         this.getCommand("player")?.setExecutor(PlayerCommand())
         this.getCommand("territory")?.setExecutor(TerritoryCommand())
+        this.getCommand("toggleneutral")?.setExecutor(NeutralCommand())
         
         // override command aliases tab complete if they exist
         this.getCommand("t")?.setTabCompleter(this.getCommand("town")?.getExecutor() as TabCompleter)

@@ -9,6 +9,10 @@ commands:
     aliases: [nda]
     permission: nodes.admin
     usage: /nodesadmin help or /na help
+  toggleneutral:
+      description: Toggles the neutral state of your nation
+      permission: nodes.command.neutral
+      usage: /toggleneutral
   town:
     description: Manage player towns (Nodes)
     aliases: [t]
